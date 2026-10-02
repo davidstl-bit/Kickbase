@@ -46,7 +46,7 @@ jobs:
               return None
 
 
-          players, LP = [], {}
+          players, LP, MC = [], {}, {}
           for p in raw:
               if p.get("id") is None:
                   continue
@@ -58,6 +58,8 @@ jobs:
                   "img": p.get("playerImage") or "", "no": int(num(p.get("number"), 0)), "tr": int(num(p.get("trend"), 0)),
                   "pr": int(num(p.get("startProbability"), 5)), "ch": int(num(p.get("marketChangeToday"), 0)), "fc": None})
               LP[i] = lastpts(p.get("history"))
+              mc = p.get("marketChange") if isinstance(p.get("marketChange"), dict) else {}
+              MC[i] = [num(mc.get(k)) for k in ("today", "yesterday", "twoDays", "sevenDaysAvg", "thirtyDaysAvg")]
           if len(players) < 300:
               sys.exit("Abbruch: nur %d Spieler erhalten, alte Daten bleiben erhalten." % len(players))
 
@@ -104,16 +106,6 @@ jobs:
               return max(lo, min(hi, x))
 
 
-          def feats(a, t):
-              mv, ch, lp, pr = a[t]
-              r1 = clip(ch / (mv - ch)) if mv - ch > 0 else 0.0
-              r2 = 0.0
-              if t > 0 and a[t - 1]:
-                  m0, c0 = a[t - 1][0], a[t - 1][1]
-                  r2 = clip(c0 / (m0 - c0)) if m0 - c0 > 0 else 0.0
-              return [1.0, r1, r2, clip((lp or 0) / 200.0, -1, 1.5), 1.0 if pr <= 2 else 0.0]
-
-
           def fit(X, Y):
               k = len(X[0])
               A = [[0.0] * (k + 1) for _ in range(k)]
@@ -137,32 +129,51 @@ jobs:
               return [A[i][k] / A[i][i] for i in range(k)]
 
 
-          TEST = 2
-          trX, trY, teX, teY = [], [], [], []
-          for a in H["p"].values():
-              for t in range(0, len(a) - 1):
-                  if a[t] and a[t + 1] and a[t][0] > 0:
-                      x, y = feats(a, t), clip(a[t + 1][0] / a[t][0] - 1)
-                      late = (len(a) - 2 - t) < TEST
-                      (teX if late else trX).append(x)
-                      (teY if late else trY).append(y)
+          def parts(mv, m):
+              """Aus den Aenderungen heute/gestern/vor 2 Tagen und den 7-/30-Tage-Summen Renditen und Vorlauf-Trends berechnen."""
+              if any(v is None for v in m):
+                  return None
+              t0, y1, y2, s7, s30 = m
+              b0 = mv - t0
+              b1 = b0 - y1
+              b2 = b1 - y2
+              if min(b0, b1, b2) <= 0:
+                  return None
+              return {"r0": clip(t0 / b0), "r1": clip(y1 / b1), "r2": clip(y2 / b2),
+                      "m7p": clip((s7 - t0) / b0, -0.6, 0.6), "m30p": clip((s30 - t0) / b0, -1, 1),
+                      "m7": clip(s7 / mv, -0.6, 0.6), "m30": clip(s30 / mv, -1, 1)}
+
+
+          # Modell: Rendite des Tages aus den Vortagen lernen (alle Spieler), dann um einen Tag verschieben und fuer morgen anwenden
+          P = {p["id"]: parts(p["mv"], MC[p["id"]]) for p in players}
+          trX, trY, teX, teY, tebase = [], [], [], [], []
+          for p in players:
+              q = P[p["id"]]
+              if not q:
+                  continue
+              x, y = [1.0, q["r1"], q["r2"], q["m7p"], q["m30p"]], q["r0"]
+              if p["id"] % 5 == 0:
+                  teX.append(x); teY.append(y); tebase.append(q["r1"])
+              else:
+                  trX.append(x); trY.append(y)
           model = None
-          if K >= 5 and len(trX) > 800:
+          if len(trX) > 150:
               w = fit(trX, trY)
               if w:
-                  pairs = [(sum(u * v for u, v in zip(w, x)), y, x[1]) for x, y in zip(teX, teY) if abs(y) > 1e-6]
-                  acc = sum(1 for p, y, r1 in pairs if (p > 0) == (y > 0)) / max(1, len(pairs))
-                  base = sum(1 for p, y, r1 in pairs if r1 != 0 and (r1 > 0) == (y > 0)) / max(1, len(pairs))
+                  pairs = [(sum(u * v for u, v in zip(w, x)), y, b) for x, y, b in zip(teX, teY, tebase) if abs(y) > 1e-6]
+                  acc = sum(1 for pr_, y, b in pairs if (pr_ > 0) == (y > 0)) / max(1, len(pairs))
+                  base = sum(1 for pr_, y, b in pairs if b != 0 and (b > 0) == (y > 0)) / max(1, len(pairs))
                   w = fit(trX + teX, trY + teY) or w
                   for p in players:
-                      a = H["p"].get(str(p["id"]))
-                      if a and a[-1]:
-                          pred = clip(sum(u * v for u, v in zip(w, feats(a, len(a) - 1))), -0.2, 0.2)
+                      q = P[p["id"]]
+                      if q:
+                          pred = clip(sum(u * v for u, v in zip(w, [1.0, q["r0"], q["r1"], q["m7"], q["m30"]])), -0.2, 0.2)
                           p["fc"] = int(round(p["mv"] * pred))
-                  model = {"k": K, "n": len(trX) + len(teX), "days": TEST, "acc": round(acc * 100, 1), "base": round(base * 100, 1)}
+                  model = {"n": len(trX) + len(teX), "test": len(teX), "acc": round(acc * 100, 1), "base": round(base * 100, 1),
+                           "w": [round(v, 4) for v in w]}
                   print("MODELL:", model)
           else:
-              print("MODELL: noch zu wenig eigene Tagesdaten (%d Tage, %d Faelle)" % (K, len(trX)))
+              print("MODELL: zu wenig Daten (%d Faelle)" % len(trX))
 
           out = {"updated": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "collected": K, "model": model, "players": players}
           json.dump(out, open("data/players.json", "w", encoding="utf8"), ensure_ascii=False, separators=(",", ":"))
