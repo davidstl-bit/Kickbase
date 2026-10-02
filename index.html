@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kickbase Analyse</title>
+<style>
+:root{--bg:#0b1220;--card:#131c2e;--ink:#f1f5f9;--mut:#94a3b8;--line:#243049;--pri:#3b82f6;--hd:#1a2540;--up:#22c55e;--dn:#ef4444;--pitch:#14532d}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f1f5f9;--card:#fff;--ink:#0f172a;--mut:#64748b;--line:#e2e8f0;--hd:#eaf1fb;--up:#16a34a;--dn:#dc2626;--pitch:#bbf7d0}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+header{background:var(--card);border-bottom:1px solid var(--line);padding:14px 16px 0}.w{max-width:1250px;margin:0 auto}h1{margin:0;font-size:21px}header p{margin:2px 0 8px;color:var(--mut);font-size:12px}
+nav{display:flex;gap:2px;overflow-x:auto}nav button{background:none;border:0;border-bottom:3px solid transparent;color:var(--mut);padding:9px 14px;font:inherit;font-weight:600;cursor:pointer;white-space:nowrap}nav button.on{color:var(--ink);border-color:var(--pri)}
+main{padding:14px 16px 40px}.grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px}.k{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}.v{font-size:20px;font-weight:700;margin-top:2px}
+.up{color:var(--up)}.dn{color:var(--dn)}.ar{font-size:10px;margin-right:3px}h2{font-size:15px;margin:18px 0 8px}.two{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(290px,1fr))}
+.row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--line)}.row:last-child{border:0}small,.hint{color:var(--mut);font-size:12px}.hint{margin-top:8px}.empty{padding:26px;text-align:center;color:var(--mut)}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center}input,select,button.b{font:inherit;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);min-width:0}
+button.b{background:var(--pri);color:#fff;border:0;font-weight:600;cursor:pointer}button.g{background:var(--hd);color:var(--ink)}
+.tw{overflow:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;max-height:650px}table{border-collapse:collapse;width:100%}
+th{position:sticky;top:0;z-index:1;background:var(--hd);color:var(--mut);text-align:right;padding:8px 9px;cursor:pointer;white-space:nowrap;font-size:11px;text-transform:uppercase}th:first-child,td:first-child{text-align:left}
+td{padding:5px 9px;text-align:right;border-top:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}td input{width:112px;padding:4px 6px;text-align:right}td input[type=date]{width:128px}
+.pl{display:flex;align-items:center;gap:8px}.pl b{font-weight:600}.im{width:34px;height:34px;border-radius:50%;object-fit:cover;background:var(--hd);flex:none}.no{font-size:10px;color:var(--mut);margin-left:4px}
+.tag{padding:1px 7px;border-radius:99px;font-size:11px;font-weight:600;background:var(--hd)}.t1{color:var(--up)}.t2{color:#a3e635}.t3{color:#facc15}.t4{color:#fb923c}.t5{color:var(--dn)}
+.x{border:0;background:none;color:var(--mut);cursor:pointer;font-size:16px}
+.bt{display:grid;grid-template-columns:120px 1fr 90px;gap:8px;align-items:center;margin:5px 0}.bw{display:flex}.hf{flex:1;height:14px;display:flex}.bar{height:14px;border-radius:7px;background:var(--up)}.bar.n{background:var(--dn)}
+.pitch{background:linear-gradient(var(--pitch),#166534);border-radius:14px;padding:14px 6px;display:flex;flex-direction:column;gap:14px}.pr{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+.pc{width:112px;background:rgba(15,23,42,.8);color:#fff;border:2px solid transparent;border-radius:10px;padding:7px 4px;text-align:center;cursor:pointer;font-size:12px}.pc b{display:block;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pc small{display:block;color:#cbd5e1}.pc.sel{border-color:#facc15}.pc.e{opacity:.5;cursor:default}
+.pc .im{width:46px;height:46px;margin:0 auto 4px;display:block}.bench{display:flex;gap:8px;flex-wrap:wrap}.bench .pc{background:var(--card);color:var(--ink);border-color:var(--line)}.bench .pc small{color:var(--mut)}
+</style></head><body>
+<header><div class="w"><h1>⚽ Kickbase Analyse</h1><p>Datenstand: <b id="stand">lädt …</b></p>
+<nav id="nav"><button class="on" data-t="db">Spielerdatenbank</button><button data-t="team">Mein Team</button><button data-t="lu">Aufstellung</button><button data-t="dash">Dashboard</button><button data-t="tr">Transferhistorie</button></nav></div></header>
+<main class="w">
+<section id="db"><div class="grid" id="dbK"></div><div class="two"><div class="card"><div class="k">Top 5 Gewinner heute</div><div id="tu"></div></div><div class="card"><div class="k">Top 5 Verlierer heute</div><div id="td"></div></div></div>
+<h2>Alle Spieler</h2><div class="tools"><input id="q" placeholder="Spieler suchen …" style="flex:1;min-width:150px"><select id="fc"></select><select id="fp"><option value="">Alle Positionen</option><option value="1">Torwart</option><option value="2">Abwehr</option><option value="3">Mittelfeld</option><option value="4">Sturm</option></select><select id="fs"><option value="">Alle Startchancen</option><option value="1">sicher</option><option value="2">wahrscheinlich</option><option value="3">fraglich</option><option value="4">unwahrscheinlich</option><option value="5">raus</option></select><select id="ff"><option value="">Alle</option><option value="up">Steigend</option><option value="dn">Fallend</option><option value="in">Im Team</option><option value="inj">Verletzt/angeschlagen</option><option value="m10">MW &gt; 10 Mio.</option></select></div>
+<div class="tw"><table><thead><tr id="dh"></tr></thead><tbody id="dbb"></tbody></table></div></section>
+
+<section id="team" hidden><div class="tools"><input id="tp" list="pl" placeholder="Spieler wählen …" style="flex:2;min-width:170px"><datalist id="pl"></datalist><input id="tpr" type="number" placeholder="Einkaufspreis € (optional)" style="flex:1;min-width:150px"><button class="b" id="add">Hinzufügen</button></div>
+<div class="tools"><label>Budget €&nbsp;<input id="bud" type="number" style="width:140px"></label><input id="tq" placeholder="Im Team suchen …" style="width:140px"><select id="tc"></select><select id="tf"><option value="">Alle Pos.</option><option value="1">Torwart</option><option value="2">Abwehr</option><option value="3">Mittelfeld</option><option value="4">Sturm</option><option value="plus">Im Plus</option><option value="minus">Im Minus</option></select><label>Sortieren&nbsp;<select id="ts"><option value="mv">Marktwert</option><option value="avg">Ø Punkte</option><option value="pt">Gesamtpunkte</option><option value="ch">Trend heute</option><option value="gv">G/V €</option><option value="gp">G/V %</option><option value="name">Name</option><option value="pos">Position</option></select></label><button class="b g" id="clr">Team leeren</button></div>
+<div class="tw"><table><thead><tr><th>Spieler</th><th>Verein</th><th>Pos.</th><th>Ø Pkt</th><th>Ges.-Pkt</th><th>Marktwert</th><th>Heute</th><th>Einkauf</th><th>G/V</th><th>G/V %</th><th>Gekauft am</th><th>Tage</th><th></th></tr></thead><tbody id="tb"></tbody></table></div>
+<div class="hint">Einkaufspreis und Datum direkt in der Tabelle ändern. Das Datum ist optional.</div></section>
+
+<section id="lu" hidden><div class="tools"><label>Formation&nbsp;<select id="fm"></select></label><button class="b" id="best">Beste Elf aufstellen</button></div><div id="lub"></div></section>
+<section id="dash" hidden></section>
+<section id="tr" hidden><div id="trk" class="grid"></div><div class="tools"><button class="b" id="tadd">+ Transfer hinzufügen</button></div><div class="tw"><table><thead><tr><th>Spieler</th><th>Einkauf</th><th>Verkauf</th><th>Datum</th><th>G/V</th><th>G/V %</th><th></th></tr></thead><tbody id="trb"></tbody></table></div></section>
+</main>
+<script>
+const SEED={kader:[{"id":2842,"price":3752575,"date":"2026-09-28"},{"id":11043,"price":3323592,"date":"2026-09-21"},{"id":461,"price":4285000,"date":"2026-09-23"},{"id":1664,"price":34250000,"date":"2026-08-16"},{"id":11570,"price":4862120,"date":"2026-09-21"},{"id":2783,"price":26206596,"date":"2026-09-13"},{"id":1961,"price":14950000,"date":"2026-09-08"},{"id":16378,"price":26495046,"date":"2026-09-21"},{"id":11591,"price":3631704,"date":"2026-09-28"},{"id":2895,"price":7467174,"date":"2026-09-23"},{"id":6080,"price":33850000,"date":"2026-08-30"},{"id":17288,"price":7377000,"date":"2026-09-04"},{"id":9224,"price":3759423,"date":"2026-09-27"},{"id":3471,"price":13650000,"date":"2026-09-18"},{"id":524,"price":13054828,"date":"2026-10-01"}],tr:[["Claude-Maurice",13900000,9890653],["Dinkçi",8700000,10005993],["Terrier",4700000,6293610],["Torunarigha",8100000,8162237],["Silas",500000,4157892]],budget:-5355727};
+const TEAMS={2:"FC Bayern",3:"Dortmund",4:"Frankfurt",5:"Freiburg",6:"HSV",7:"Leverkusen",8:"Schalke",9:"Stuttgart",10:"Werder",13:"Augsburg",14:"Hoffenheim",15:"Gladbach",18:"Mainz",28:"Köln",29:"Paderborn",40:"Union",43:"Leipzig",77:"Elversberg"};
+const POS={1:"TW",2:"ABW",3:"MF",4:"ST"},PL={TW:1,ABW:2,MF:3,ST:4},ST={0:"fit",1:"verletzt",2:"angeschlagen",4:"Aufbautraining",256:"gesperrt?"},PR={1:"sicher",2:"wahrscheinlich",3:"fraglich",4:"unwahrscheinlich",5:"raus"};
+const $=i=>document.getElementById(i),ls=(k,v)=>{try{if(v===undefined){const s=localStorage.getItem(k);return s?JSON.parse(s):null}localStorage.setItem(k,JSON.stringify(v))}catch(e){return null}};
+const E=n=>(n<0?"−":"")+Math.abs(Math.round(n)).toLocaleString("de-DE")+" €",M=n=>(n<0?"−":"")+(Math.abs(n)/1e6).toLocaleString("de-DE",{maximumFractionDigits:2})+" Mio. €";
+const P=n=>(n>0?"+":n<0?"−":"")+(Math.abs(n)*100).toLocaleString("de-DE",{maximumFractionDigits:1})+" %",cl=n=>n>0?"up":n<0?"dn":"";
+const AR=n=>`<span class="ar ${cl(n)}">${n>0?"▲":n<0?"▼":"–"}</span>`,CH=n=>`<span class="${cl(n)}">${AR(n)}${E(n)}</span>`;
+let D=[],byId={},byName={};
+const img=p=>`<img class="im" loading="lazy" src="${p.img||""}" alt="" onerror="this.style.visibility='hidden'">`;
+const who=p=>`<div class="pl">${img(p)}<div><b>${p.name}</b><span class="no">${p.no?"#"+p.no:""}</span></div></div>`;
+function load(j){D=j.players.map(p=>({...p,name:((p.fn||"")+" "+(p.ln||"")).trim(),club:TEAMS[p.t]||"Team "+p.t,pc:p.mv-p.ch>0?p.ch/(p.mv-p.ch):0}));byId=Object.fromEntries(D.map(p=>[p.id,p]));byName=Object.fromEntries(D.map(p=>[p.name.toLowerCase(),p]));
+ const d=new Date(j.updated);$("stand").textContent=d.toLocaleString("de-DE",{dateStyle:"short",timeStyle:"short"})+" Uhr";$("pl").innerHTML=D.map(p=>`<option value="${p.name}">`).join("");
+ const o='<option value="">Alle Vereine</option>'+Object.entries(TEAMS).sort((a,b)=>a[1].localeCompare(b[1])).map(([i,n])=>`<option value="${i}">${n}</option>`).join("");$("fc").innerHTML=o;$("tc").innerHTML=o}
+let S=ls("kb2_team")||{budget:SEED.budget,players:SEED.kader.map(x=>({...x})),form:"4-4-2",lu:null},TR=ls("kb2_tr")||SEED.tr.map(t=>({n:t[0],b:t[1],s:t[2],d:""}));
+const sS=()=>ls("kb2_team",S),sT=()=>ls("kb2_tr",TR),iso=()=>new Date().toISOString().slice(0,10),days=d=>d?Math.max(0,Math.floor((Date.now()-new Date(d))/864e5)):"–",inTeam=id=>S.players.some(x=>x.id===id);
+$("nav").onclick=e=>{const t=e.target.dataset.t;if(!t)return;document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("on",b===e.target));["db","team","lu","dash","tr"].forEach(s=>$(s).hidden=s!==t);({team:teamR,lu:luR,dash:dash,tr:trR,db:dbR})[t]()};
+
+// Datenbank
+const cols=[["name","Spieler"],["club","Verein"],["pos","Pos."],["avg","Ø Pkt"],["pt","Ges.-Pkt"],["mv","Marktwert"],["ch","Heute €"],["pc","Heute %"],["tr","Trend"],["gp","Spiele"],["pr","Startchance"],["st","Status"],["add",""]];let sk="mv",sd=-1;
+$("dh").innerHTML=cols.map(c=>`<th data-k="${c[0]}">${c[1]}</th>`).join("");$("dh").onclick=e=>{const k=e.target.dataset.k;if(!k||k==="add")return;sd=sk===k?-sd:(["name","club"].includes(k)?1:-1);sk=k;dbR()};
+const mini=l=>l.map(p=>`<div class="row">${who(p)}<span style="text-align:right">${CH(p.ch)}<br><small>${P(p.pc)} · MW ${M(p.mv)}</small></span></div>`).join("");
+function dbK(){const s=[...D];$("dbK").innerHTML=[["Spieler",D.length],["Ø Marktwert",M(D.reduce((a,p)=>a+p.mv,0)/D.length)],["Steigen heute",`<span class=up>▲ ${D.filter(p=>p.ch>0).length}</span>`],["Fallen heute",`<span class=dn>▼ ${D.filter(p=>p.ch<0).length}</span>`],["Teuerster",M(Math.max(...D.map(p=>p.mv)))]].map(([k,v])=>`<div class="card"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+ $("tu").innerHTML=mini(s.sort((a,b)=>b.ch-a.ch).slice(0,5));$("td").innerHTML=mini(s.sort((a,b)=>a.ch-b.ch).slice(0,5))}
+function dbR(){const q=$("q").value.toLowerCase(),fc=$("fc").value,fp=$("fp").value,fs=$("fs").value,f=$("ff").value;
+ const r=D.filter(p=>p.name.toLowerCase().includes(q)&&(!fc||p.t==fc)&&(!fp||p.pos==fp)&&(!fs||p.pr==fs)&&(!f||(f=="up"&&p.ch>0)||(f=="dn"&&p.ch<0)||(f=="in"&&inTeam(p.id))||(f=="inj"&&p.st>0)||(f=="m10"&&p.mv>1e7)));
+ r.sort((a,b)=>{let x=a[sk],y=b[sk];if(x==null)x=-1e12;if(y==null)y=-1e12;return typeof x==="string"?sd*x.localeCompare(y,"de"):sd*(x-y)});
+ $("dbb").innerHTML=r.slice(0,250).map(p=>`<tr><td>${who(p)}</td><td>${p.club}</td><td>${POS[p.pos]}</td><td>${p.avg??"–"}</td><td>${p.pt??"–"}</td><td>${E(p.mv)}</td><td>${CH(p.ch)}</td><td class="${cl(p.ch)}">${P(p.pc)}</td><td>${AR(p.tr==1?1:p.tr==2?-1:0)}</td><td>${p.gp??"–"}</td><td><span class="tag t${p.pr}">${PR[p.pr]||"–"}</span></td><td>${p.st?`<span class="tag dn">${ST[p.st]||p.st}</span>`:"fit"}</td><td><button class="x" data-a="${p.id}">${inTeam(p.id)?"✓":"＋"}</button></td></tr>`).join("")+(r.length>250?`<tr><td colspan=13 class="hint">${r.length-250} weitere – Suche/Filter nutzen</td></tr>`:"")}
+["q","fc","fp","fs","ff"].forEach(i=>$(i).oninput=dbR);
+$("dbb").onclick=e=>{const id=+e.target.dataset.a;if(!id||inTeam(id))return;S.players.push({id,price:byId[id].mv,date:""});sS();e.target.textContent="✓"};
+
+// Team
+$("bud").value=S.budget;$("bud").oninput=()=>{S.budget=+$("bud").value||0;sS()};
+$("add").onclick=()=>{const p=byName[$("tp").value.trim().toLowerCase()];if(!p)return alert("Bitte einen Spieler aus der Liste wählen.");if(inTeam(p.id))return;S.players.push({id:p.id,price:+$("tpr").value||p.mv,date:""});$("tp").value="";$("tpr").value="";S.lu=null;sS();teamR()};
+$("clr").onclick=()=>{if(confirm("Team wirklich leeren?")){S.players=[];S.lu=null;sS();teamR()}};
+const rows=()=>S.players.map(t=>{const p=byId[t.id];return p?{...t,p,gv:p.mv-t.price,gp:t.price?(p.mv-t.price)/t.price:0}:null}).filter(Boolean);
+const SK={mv:x=>x.p.mv,avg:x=>x.p.avg??-1,pt:x=>x.p.pt??-1,ch:x=>x.p.ch,gv:x=>x.gv,gp:x=>x.gp};
+function teamR(){const k=$("ts").value,q=$("tq").value.toLowerCase(),c=$("tc").value,f=$("tf").value;
+ const r=rows().filter(x=>x.p.name.toLowerCase().includes(q)&&(!c||x.p.t==c)&&(!f||x.p.pos==f||(f=="plus"&&x.gv>0)||(f=="minus"&&x.gv<0))).sort((a,b)=>k=="name"?a.p.name.localeCompare(b.p.name,"de"):k=="pos"?a.p.pos-b.p.pos:SK[k](b)-SK[k](a));
+ $("tb").innerHTML=r.length?r.map(x=>`<tr><td>${who(x.p)}</td><td>${x.p.club}</td><td>${POS[x.p.pos]}</td><td>${x.p.avg??"–"}</td><td>${x.p.pt??"–"}</td><td>${E(x.p.mv)}</td><td>${CH(x.p.ch)}</td><td><input type="number" data-i="${x.id}" data-f="price" value="${x.price}"></td><td class="${cl(x.gv)}">${E(x.gv)}</td><td class="${cl(x.gv)}">${P(x.gp)}</td><td><input type="date" data-i="${x.id}" data-f="date" value="${x.date||""}"></td><td>${days(x.date)}</td><td><button class="x" data-r="${x.id}">✕</button></td></tr>`).join(""):`<tr><td colspan=13 class="empty">Kein Spieler im Team (oder Filter zu streng).</td></tr>`}
+["tq","tc","tf","ts"].forEach(i=>$(i).oninput=teamR);
+$("tb").onchange=e=>{const t=e.target,p=S.players.find(x=>x.id==t.dataset.i);if(!p)return;p[t.dataset.f]=t.dataset.f=="price"?+t.value||0:t.value;sS();teamR()};
+$("tb").onclick=e=>{const id=e.target.dataset.r;if(!id)return;S.players=S.players.filter(x=>x.id!=id);S.lu=null;sS();teamR()};
+
+// Aufstellung
+const FORMS=["4-4-2","4-3-3","3-5-2","4-5-1","3-4-3","5-3-2","5-4-1"];$("fm").innerHTML=FORMS.map(f=>`<option ${f==S.form?"selected":""}>${f}</option>`).join("");
+const need=()=>{const[a,m,s]=S.form.split("-").map(Number);return{1:1,2:a,3:m,4:s}},rank=x=>(x.p.st==1||x.p.pr==5?-1e6:0)+(x.p.avg??-1);
+function auto(){const n=need();S.lu={};for(const k in n)S.lu[k]=rows().filter(x=>x.p.pos==k).sort((a,b)=>rank(b)-rank(a)).slice(0,n[k]).map(x=>x.id);sS()}
+function valid(){if(!S.lu)return false;const n=need();return Object.keys(n).every(k=>Array.isArray(S.lu[k])&&S.lu[k].length<=n[k]&&S.lu[k].every(id=>S.players.some(x=>x.id===id&&byId[id]&&byId[id].pos==k)))}
+let sel=null;$("fm").onchange=()=>{S.form=$("fm").value;auto();luR()};$("best").onclick=()=>{auto();sel=null;luR()};
+const card=(x,pos)=>`<div class="pc ${sel==x.id?"sel":""}" data-p="${x.id}" data-pos="${pos}">${img(x.p)}<b>${x.p.name}</b><small>${x.p.club} · ${POS[x.p.pos]}${x.p.no?" #"+x.p.no:""}</small><small>Ø ${x.p.avg??"–"} · ${x.p.pt??"–"} Pkt · ${x.p.gp??0} Sp.</small><small>${M(x.p.mv)} ${CH(x.p.ch)}</small><small><span class="t${x.p.pr}">${PR[x.p.pr]}</span>${x.p.st?" · "+(ST[x.p.st]||""):""}</small></div>`;
+function luR(){const r=rows();if(!r.length){$("lub").innerHTML=`<div class="card empty">Erst Spieler unter „Mein Team“ hinzufügen.</div>`;return}
+ if(!valid())auto();const n=need(),by=Object.fromEntries(r.map(x=>[x.id,x])),row=k=>`<div class="pr">${S.lu[k].map(id=>card(by[id],k)).join("")}${Array.from({length:n[k]-S.lu[k].length},()=>`<div class="pc e"><b>frei</b><small>zu wenig Spieler</small></div>`).join("")}</div>`;
+ const bench=r.filter(x=>!S.lu[x.p.pos].includes(x.id)).sort((a,b)=>rank(b)-rank(a)),tp=Object.values(S.lu).flat().map(id=>by[id]);
+ $("lub").innerHTML=`<div class="grid"><div class="card"><div class="k">Formation</div><div class="v">${S.form}</div></div><div class="card"><div class="k">Marktwert Startelf</div><div class="v">${M(tp.reduce((a,x)=>a+x.p.mv,0))}</div></div><div class="card"><div class="k">Ø Punkte (Summe)</div><div class="v">${tp.reduce((a,x)=>a+(x.p.avg||0),0)}</div></div></div><div class="pitch">${[4,3,2,1].map(row).join("")}</div><h2>Bank</h2><div class="bench">${bench.map(x=>card(x,x.p.pos)).join("")||'<span class="hint">Keine Bankspieler</span>'}</div><div class="hint">Zum Tauschen erst einen Spieler, dann einen anderen auf derselben Position antippen. Automatik: höchster Ø Punkte, Verletzte und „raus“ zuletzt.</div>`}
+$("lu").onclick=e=>{const c=e.target.closest(".pc");if(!c||!c.dataset.p)return;const id=+c.dataset.p,pos=c.dataset.pos;if(sel===id){sel=null;return luR()}if(!sel){sel=id;return luR()}
+ if(byId[sel].pos!=pos){sel=id;return luR()}const L=S.lu[pos],ia=L.indexOf(sel),ib=L.indexOf(id);if(ia>=0&&ib>=0){L[ia]=id;L[ib]=sel}else if(ia>=0)L[ia]=id;else if(ib>=0)L[ib]=sel;sel=null;sS();luR()};
+
+// Dashboard
+function dash(){const r=rows(),el=$("dash");if(!r.length){el.innerHTML=`<div class="card empty">Füge zuerst Spieler unter „Mein Team“ hinzu.</div>`;return}
+ const sm=f=>r.reduce((a,x)=>a+f(x),0),kw=sm(x=>x.p.mv),ew=sm(x=>x.price),gv=kw-ew,ch=sm(x=>x.p.ch),b=S.budget,ges=b+kw,mm=Math.max(0,ges)*.33,mi=Math.max(0,-b),use=mm?mi/mm:0,real=TR.reduce((a,t)=>a+((t.s||0)-(t.b||0)),0);
+ const kp=[["Budget",E(b),cl(b)],["Kaderwert",M(kw),""],["Einkaufswert",M(ew),""],["Gewinn / Verlust",M(gv),cl(gv)],["G/V %",P(ew?gv/ew:0),cl(gv)],["Änderung heute",E(ch),cl(ch)],["Gesamtvermögen",M(ges),""]];
+ const g=[...r].sort((a,b)=>b.gv-a.gv),c=[...r].sort((a,b)=>b.p.ch-a.p.ch),L=(a,f,h)=>a.map(x=>`<div class="row">${who(x.p)}<span class="${cl(f(x))}" style="text-align:right">${AR(f(x))}${E(f(x))}<br><small>${P(h(x))} · MW ${M(x.p.mv)}</small></span></div>`).join("");
+ const mx=Math.max(...r.map(x=>Math.abs(x.gv)),1),plus=r.filter(x=>x.gv>0).length,ad=r.reduce((a,x)=>a+(+days(x.date)||0),0)/r.length;
+ el.innerHTML=`<div class="grid">${kp.map(([k,v,c])=>`<div class="card"><div class="k">${k}</div><div class="v ${c}">${v}</div></div>`).join("")}</div><div class="two">
+ <div class="card"><div class="k">Budget-Spielraum (33 %-Regel)</div><div class="row"><span>Max. Minus erlaubt</span><b>${M(mm)}</b></div><div class="row"><span>Aktuelles Minus</span><b>${M(mi)}</b></div><div class="row"><span>Spielraum bis Limit</span><b>${M(b+mm)}</b></div><div class="row"><span>Auslastung</span><b class="${use>=.8?"dn":""}">${P(use).replace("+","")}</b></div></div>
+ <div class="card"><div class="k">Gesamtbilanz</div><div class="row"><span>Realisiert (Transfers)</span><b class="${cl(real)}">${M(real)}</b></div><div class="row"><span>Unrealisiert (Kader)</span><b class="${cl(gv)}">${M(gv)}</b></div><div class="row"><span>Gesamtgewinn</span><b class="${cl(real+gv)}">${M(real+gv)}</b></div></div>
+ <div class="card"><div class="k">Kader-Struktur</div><div class="row"><span>Spieler</span><b>${r.length}</b></div><div class="row"><span>Im Plus / Minus</span><b>${plus} / ${r.length-plus}</b></div><div class="row"><span>Ø Tage im Kader</span><b>${isNaN(ad)?"–":ad.toLocaleString("de-DE",{maximumFractionDigits:1})}</b></div></div>
+ <div class="card"><div class="k">Top 5 Gewinner (seit Kauf)</div>${L(g.slice(0,5),x=>x.gv,x=>x.gp)}</div><div class="card"><div class="k">Top 5 Verlierer (seit Kauf)</div>${L(g.slice(-5).reverse(),x=>x.gv,x=>x.gp)}</div>
+ <div class="card"><div class="k">Tages-Gewinner</div>${L(c.slice(0,3),x=>x.p.ch,x=>x.p.pc)}</div><div class="card"><div class="k">Tages-Verlierer</div>${L(c.slice(-3).reverse(),x=>x.p.ch,x=>x.p.pc)}</div></div>
+ <h2>Gewinn / Verlust je Spieler</h2><div class="card">${g.map(x=>`<div class="bt"><span>${x.p.name}</span><div class="bw"><div class="hf" style="justify-content:flex-end">${x.gv<0?`<div class="bar n" style="width:${Math.abs(x.gv)/mx*100}%"></div>`:""}</div><div class="hf">${x.gv>0?`<div class="bar" style="width:${x.gv/mx*100}%"></div>`:""}</div></div><span class="${cl(x.gv)}" style="text-align:right">${M(x.gv)}</span></div>`).join("")}</div>`}
+
+// Transfers
+function trR(){const v=TR.filter(t=>t.b&&t.s),eb=v.reduce((a,t)=>a+t.b,0),es=v.reduce((a,t)=>a+t.s,0),g=es-eb;
+ $("trk").innerHTML=[["Transfers",v.length],["Einkauf",M(eb)],["Verkauf",M(es)],["Realisierter Gewinn",`<span class="${cl(g)}">${M(g)}</span>`],["Gewinn %",`<span class="${cl(g)}">${P(eb?g/eb:0)}</span>`]].map(([k,x])=>`<div class="card"><div class="k">${k}</div><div class="v">${x}</div></div>`).join("");
+ $("trb").innerHTML=TR.length?TR.map((t,i)=>{const g=(t.s||0)-(t.b||0),ok=t.b&&t.s;return`<tr><td><input list="pl" data-i="${i}" data-f="n" value="${t.n||""}" style="width:150px;text-align:left"></td><td><input type="number" data-i="${i}" data-f="b" value="${t.b||""}"></td><td><input type="number" data-i="${i}" data-f="s" value="${t.s||""}"></td><td><input type="date" data-i="${i}" data-f="d" value="${t.d||""}"></td><td class="${cl(g)}">${ok?E(g):"–"}</td><td class="${cl(g)}">${ok?P(g/t.b):"–"}</td><td><button class="x" data-r="${i}">✕</button></td></tr>`}).join(""):`<tr><td colspan=7 class="empty">Noch keine Transfers.</td></tr>`}
+$("tadd").onclick=()=>{TR.push({n:"",b:0,s:0,d:""});sT();trR()};
+$("trb").onchange=e=>{const t=e.target,i=+t.dataset.i;if(isNaN(i))return;TR[i][t.dataset.f]=["b","s"].includes(t.dataset.f)?+t.value||0:t.value;sT();trR()};
+$("trb").onclick=e=>{const i=e.target.dataset.r;if(i==null)return;TR.splice(+i,1);sT();trR()};
+
+fetch("data/players.json",{cache:"no-store"}).then(r=>r.json()).then(j=>{load(j);dbK();dbR();teamR();luR();dash();trR()}).catch(()=>{$("stand").textContent="Daten konnten nicht geladen werden (data/players.json fehlt?)"});
+</script></body></html>
