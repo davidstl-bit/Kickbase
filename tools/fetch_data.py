@@ -8,7 +8,17 @@ with urllib.request.urlopen(req, timeout=60) as r:
     raw = json.load(r)
 
 def n(v, d=None):
-    return v if isinstance(v, (int, float)) and not isinstance(v, bool) else d
+    """Zahl lesen; auch Zahlen, die als Text geliefert werden (z. B. teamId "2")."""
+    if isinstance(v, bool):
+        return d
+    if isinstance(v, (int, float)):
+        return v
+    if isinstance(v, str):
+        try:
+            return float(v) if "." in v else int(v)
+        except ValueError:
+            return d
+    return d
 
 players = []
 for p in raw:
